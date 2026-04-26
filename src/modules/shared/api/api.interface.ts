@@ -41,7 +41,9 @@ export interface ApiServiceInfo {
   status?: ApiServiceStatus;
 }
 
-export interface ApiServiceInfoResponse {}
+export interface ApiServiceInfoResponse {
+  [key: string]: unknown;
+}
 
 export enum ApiServiceNames {
   XbrowsersyncService = 'ApiXbrowsersyncService'

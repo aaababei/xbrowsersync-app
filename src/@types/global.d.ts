@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 interface Window {
   cordova: Cordova;
   device: any;

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-
 import angular from 'angular';
 import { Injectable } from 'angular-ts-decorators';
 import { boundMethod } from 'autobind-decorator';

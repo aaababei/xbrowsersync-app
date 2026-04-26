@@ -64,6 +64,10 @@ export class IssuesSettingsComponent implements OnInit {
           ? `${this.platformSvc.getI18nString(this.Strings.View.Settings.FileDownloaded)}: ${filename}`
           : '';
       })
+      .catch((err) => {
+        console.error('[xBrowserSync] Download log failed:', err);
+        throw err;
+      })
       .finally(() => {
         this.savingLog = false;
         this.appHelperSvc.focusOnElement('.btn-done');

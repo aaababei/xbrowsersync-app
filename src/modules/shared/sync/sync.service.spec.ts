@@ -21,7 +21,7 @@ import { SyncService } from './sync.service';
 describe('SyncService', () => {
   let syncSvc: SyncService;
   const mock$exceptionHandler = jest.fn();
-  const mock$timeout = jest.fn((fn: Function) => fn()) as any;
+  const mock$timeout = jest.fn((fn: () => void) => fn()) as any;
   const mockBookmarkHelperSvc = {
     getCachedBookmarks: jest.fn(),
     updateCachedBookmarks: jest.fn()
@@ -199,7 +199,10 @@ describe('SyncService', () => {
     const mockApiSvc = { getBookmarksLastUpdated: jest.fn().mockRejectedValue(new SyncNotFoundError()) };
     mockUtilitySvc.getApiService.mockResolvedValue(mockApiSvc);
     mockBookmarkHelperSvc.getCachedBookmarks.mockResolvedValue([]);
-    mockStoreSvc.get.mockResolvedValue({ lastUpdated: '2023-01-01', syncInfo: { id: 'test', password: 'pass', version: '1.5.0' } });
+    mockStoreSvc.get.mockResolvedValue({
+      lastUpdated: '2023-01-01',
+      syncInfo: { id: 'test', password: 'pass', version: '1.5.0' }
+    });
 
     const result = await syncSvc.checkSyncExists();
 

@@ -1,6 +1,6 @@
 import { zxcvbn, zxcvbnOptions } from '@zxcvbn-ts/core';
-import zxcvbnLanguageCommon from '@zxcvbn-ts/language-common';
-import zxcvbnLanguageEn from '@zxcvbn-ts/language-en';
+import { adjacencyGraphs, dictionary as commonDictionary } from '@zxcvbn-ts/language-common';
+import { dictionary as enDictionary, translations } from '@zxcvbn-ts/language-en';
 import { Directive, Input, OnInit } from 'angular-ts-decorators';
 import { PlatformService } from '../../../shared/global-shared.interface';
 
@@ -27,11 +27,11 @@ export class PasswordStrengthDirective implements OnInit {
   ngOnInit(): void {
     zxcvbnOptions.setOptions({
       dictionary: {
-        ...zxcvbnLanguageCommon.dictionary,
-        ...zxcvbnLanguageEn.dictionary
+        ...commonDictionary,
+        ...enDictionary
       },
-      graphs: zxcvbnLanguageCommon.adjacencyGraphs,
-      translations: zxcvbnLanguageEn.translations
+      graphs: adjacencyGraphs,
+      translations
     });
 
     this.ngModel.$validators.passwordStrength = (value) => {

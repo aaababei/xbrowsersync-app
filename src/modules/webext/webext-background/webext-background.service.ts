@@ -118,7 +118,6 @@ export class WebExtBackgroundService {
     browser.alarms.onAlarm.addListener(this.onAlarm);
     browser.notifications.onClicked.addListener(this.onNotificationClicked);
     browser.notifications.onClosed.addListener(this.onNotificationClosed);
-    browser.runtime.onMessage.addListener(this.onMessage);
   }
 
   checkForNewVersion(): void {
@@ -198,7 +197,7 @@ export class WebExtBackgroundService {
       ? new DOMParser().parseFromString(`<span>${alert.message}</span>`, 'text/xml').firstElementChild.textContent
       : alert.message;
     const options: Notifications.CreateNotificationOptions = {
-      iconUrl: `${Globals.PathToAssets}/notification.svg`,
+      iconUrl: browser.runtime.getURL(`${Globals.PathToAssets}/notification.svg`),
       message: messageToDisplay,
       title: alert.title,
       type: 'basic'
@@ -322,9 +321,8 @@ export class WebExtBackgroundService {
     }
   }
 
-  onInstall(event: InputEvent): void {
+  onInstall(details: browser.Runtime.OnInstalledDetailsType): void {
     // Check if fresh install needed
-    const details = angular.element(event.currentTarget as Element).data('details');
     (details?.reason === 'install' ? this.installExtension() : this.$q.resolve()).then(() => this.init());
   }
 
@@ -432,9 +430,20 @@ export class WebExtBackgroundService {
     }
 
     return new this.$q<string | void>((resolve, reject) => {
-      // Use create a new object url using contents and trigger download
-      const file = new Blob([textContents], { type: 'text/plain' });
-      const url = URL.createObjectURL(file);
+      // Firefox does not support data: URLs in browser.downloads.download().
+      // Chrome MV3 service workers don't support URL.createObjectURL().
+      // Solution: try blob URL first (works in Firefox background module),
+      // fall back to data URL (works in Chrome MV3 service worker).
+      let url: string;
+      let revokeUrl: () => void;
+      if (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
+        const file = new Blob([textContents], { type: 'text/plain' });
+        url = URL.createObjectURL(file);
+        revokeUrl = () => URL.revokeObjectURL(url);
+      } else {
+        url = `data:text/plain;charset=utf-8,${encodeURIComponent(textContents)}`;
+        revokeUrl = () => {};
+      }
       browser.downloads
         .download({
           filename,
@@ -445,7 +454,7 @@ export class WebExtBackgroundService {
           const onChangedHandler = (delta: Downloads.OnChangedDownloadDeltaType) => {
             switch (delta.state?.current) {
               case 'complete':
-                URL.revokeObjectURL(url);
+                revokeUrl();
                 browser.downloads.onChanged.removeListener(onChangedHandler);
                 this.getDownloadById(downloadId).then((download) => {
                   this.logSvc.logInfo(`Downloaded file ${download.filename}`);
@@ -453,7 +462,7 @@ export class WebExtBackgroundService {
                 });
                 break;
               case 'interrupted':
-                URL.revokeObjectURL(url);
+                revokeUrl();
                 browser.downloads.onChanged.removeListener(onChangedHandler);
                 if (delta.error?.current === 'USER_CANCELED') {
                   resolve();

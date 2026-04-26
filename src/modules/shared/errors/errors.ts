@@ -1,5 +1,3 @@
-/* eslint-disable max-classes-per-file */
-
 export class BaseError extends Error {
   logged: boolean;
 

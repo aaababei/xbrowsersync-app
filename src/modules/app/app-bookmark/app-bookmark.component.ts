@@ -203,7 +203,7 @@ export class AppBookmarkComponent implements OnInit {
     });
   }
 
-  getMetadataForCurrentPage(): ng.IPromise<Boolean | BookmarkMetadata> {
+  getMetadataForCurrentPage(): ng.IPromise<boolean | BookmarkMetadata> {
     return this.platformSvc.getPageMetadata(true).then((metadata) => this.getPageMetadataAsBookmarkMetadata(metadata));
   }
 

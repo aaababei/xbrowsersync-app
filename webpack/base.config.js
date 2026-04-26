@@ -42,7 +42,7 @@ module.exports = (env, argv) => {
         },
         {
           test: /\.svg$/,
-          loader: 'svg-inline-loader',
+          type: 'asset/source',
           issuer: /\.ts$/
         },
         {
@@ -75,7 +75,7 @@ module.exports = (env, argv) => {
           splitChunks: {
             cacheGroups: {
               vendor: {
-                chunks: 'all',
+                chunks: (chunk) => chunk.name !== 'background',
                 name: 'vendor',
                 test: /node_modules/
               }

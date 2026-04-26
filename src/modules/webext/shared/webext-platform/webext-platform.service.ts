@@ -198,16 +198,17 @@ export abstract class WebExtPlatformService implements PlatformService {
         return metadata;
       }
 
-      return browser.tabs
-        .executeScript(activeTab.id, { file: this.contentScriptUrl })
+      return browser.scripting
+        .executeScript({ target: { tabId: activeTab.id }, files: [this.contentScriptUrl] })
         .then(() => {
-          return browser.tabs.executeScript(activeTab.id, {
-            code: 'WebpageMetadataCollecter.CollectMetadata();'
+          return browser.scripting.executeScript({
+            target: { tabId: activeTab.id },
+            func: () => (window as any).WebpageMetadataCollecter.CollectMetadata()
           });
         })
-        .then((response) => {
-          if (response?.length && response?.[0]) {
-            [metadata] = response;
+        .then((results) => {
+          if (results?.length && results[0]?.result) {
+            metadata = results[0].result;
           }
 
           // If no metadata returned, use the info from the active tab
@@ -293,14 +294,14 @@ export abstract class WebExtPlatformService implements PlatformService {
     if (syncType) {
       iconPath =
         syncType === SyncType.Local
-          ? `${Globals.PathToAssets}/downloading.png`
-          : `${Globals.PathToAssets}/uploading.png`;
+          ? browser.runtime.getURL(`${Globals.PathToAssets}/downloading.png`)
+          : browser.runtime.getURL(`${Globals.PathToAssets}/uploading.png`);
       newTitle += syncingTitle;
     } else if (syncEnabled) {
-      iconPath = `${Globals.PathToAssets}/synced.png`;
+      iconPath = browser.runtime.getURL(`${Globals.PathToAssets}/synced.png`);
       newTitle += syncedTitle;
     } else {
-      iconPath = `${Globals.PathToAssets}/notsynced.png`;
+      iconPath = browser.runtime.getURL(`${Globals.PathToAssets}/notsynced.png`);
       newTitle += notSyncedTitle;
     }
 
@@ -308,7 +309,7 @@ export abstract class WebExtPlatformService implements PlatformService {
       const iconUpdated = this.$q.defer<void>();
       const titleUpdated = this.$q.defer<void>();
 
-      browser.browserAction.getTitle({}).then((currentTitle) => {
+      browser.action.getTitle({}).then((currentTitle) => {
         // Don't do anything if browser action title hasn't changed
         if (newTitle === currentTitle) {
           return resolve();
@@ -317,14 +318,14 @@ export abstract class WebExtPlatformService implements PlatformService {
         // Set a delay if finished syncing to prevent flickering when executing many syncs
         if (currentTitle.indexOf(syncingTitle) > 0 && newTitle.indexOf(syncedTitle)) {
           this.refreshInterfaceTimeout = this.$timeout(() => {
-            browser.browserAction.setIcon({ path: iconPath });
-            browser.browserAction.setTitle({ title: newTitle });
+            browser.action.setIcon({ path: iconPath });
+            browser.action.setTitle({ title: newTitle });
           }, 350);
           iconUpdated.resolve();
           titleUpdated.resolve();
         } else {
-          browser.browserAction.setIcon({ path: iconPath }).then(iconUpdated.resolve);
-          browser.browserAction.setTitle({ title: newTitle }).then(titleUpdated.resolve);
+          browser.action.setIcon({ path: iconPath }).then(iconUpdated.resolve);
+          browser.action.setTitle({ title: newTitle }).then(titleUpdated.resolve);
         }
 
         this.$q.all([iconUpdated, titleUpdated]).then(resolve).catch(reject);
@@ -348,7 +349,9 @@ export abstract class WebExtPlatformService implements PlatformService {
 
     return promise.catch((err: Error) => {
       // Recreate the error object as webextension-polyfill wraps the object before returning it
-      const error: BaseError = new (<any>Errors)[err.message]();
+      // Guard against unknown error class names (e.g. plain message strings from service worker context)
+      const ErrorClass = (<any>Errors)[err?.message];
+      const error: BaseError = typeof ErrorClass === 'function' ? new ErrorClass() : new BaseError(err?.message);
       error.logged = true;
       throw error;
     });

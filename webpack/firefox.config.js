@@ -11,13 +11,30 @@ module.exports = (env, argv) => {
   manifestPattern.transform = (buffer) => {
     const webExtTransfromResult = webExtTransfrom(buffer);
     const manifest = JSON.parse(webExtTransfromResult);
+
+    // Firefox uses background scripts with type:module instead of service_worker
+    manifest.background = {
+      scripts: ['assets/background.js'],
+      type: 'module'
+    };
+
+    // Firefox MV3 uses host_permissions instead of optional_host_permissions
+    if (manifest.optional_host_permissions) {
+      manifest.host_permissions = manifest.optional_host_permissions;
+      delete manifest.optional_host_permissions;
+    }
+
     manifest.browser_specific_settings = {
       gecko: {
         id: '{019b606a-6f61-4d01-af2a-cea528f606da}',
-        strict_min_version: '75.0',
+        strict_min_version: '109.0',
         update_url: 'https://xbrowsersync.github.io/app/firefox-versions.json'
       }
     };
+
+    // Firefox MV3 does not support version_name (Chrome-only field)
+    delete manifest.version_name;
+
     return JSON.stringify(manifest, null, 2);
   };
 
@@ -30,7 +47,8 @@ module.exports = (env, argv) => {
     },
     output: {
       ...webExtConfig.output,
-      path: Path.resolve(__dirname, '../build/firefox/assets')
+      path: Path.resolve(__dirname, '../build/firefox/assets'),
+      globalObject: 'globalThis'
     }
   };
 };

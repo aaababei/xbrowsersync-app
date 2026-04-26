@@ -1,7 +1,7 @@
-import angular from 'angular';
+import './csp-init';
 import { NgModule } from 'angular-ts-decorators';
 import browser from 'webextension-polyfill';
-import { WebExtBackgroundModule } from '../../webext-background/webext-background.module';
+import { getBackgroundService, WebExtBackgroundModule } from '../../webext-background/webext-background.module';
 import { FirefoxBookmarkService } from '../shared/firefox-bookmark/firefox-bookmark.service';
 import { FirefoxPlatformService } from '../shared/firefox-platform/firefox-platform.service';
 
@@ -10,28 +10,25 @@ import { FirefoxPlatformService } from '../shared/firefox-platform/firefox-platf
   imports: [WebExtBackgroundModule],
   providers: [FirefoxBookmarkService, FirefoxPlatformService]
 })
-class FirefoxBackgroundModule {}
+export class FirefoxBackgroundModule {}
 
-(FirefoxBackgroundModule as NgModule).module.config([
-  '$compileProvider',
-  '$httpProvider',
-  ($compileProvider: ng.ICompileProvider, $httpProvider: ng.IHttpProvider) => {
-    $compileProvider.debugInfoEnabled(false);
-    $httpProvider.interceptors.push('ApiRequestInterceptorFactory');
-  }
-]);
+const moduleName = (FirefoxBackgroundModule as NgModule).module.name;
 
-angular.element(document).ready(() => {
-  angular.bootstrap(document, [(FirefoxBackgroundModule as NgModule).module.name]);
-});
-
-// Set synchronous event handlers
+// Register synchronous event handlers at top level (before any async work)
 browser.runtime.onInstalled.addListener((details) => {
-  // Store event details as element data
-  const element = document.querySelector('#install');
-  angular.element(element).data('details', details);
-  (document.querySelector('#install') as HTMLButtonElement).click();
+  getBackgroundService(moduleName)
+    .then((svc) => svc.onInstall(details))
+    .catch((err) => console.error('[xBrowserSync] onInstalled handler failed:', err));
 });
+
 browser.runtime.onStartup.addListener(() => {
-  (document.querySelector('#startup') as HTMLButtonElement).click();
+  getBackgroundService(moduleName)
+    .then((svc) => svc.init())
+    .catch((err) => console.error('[xBrowserSync] onStartup handler failed:', err));
+});
+
+// Register message listener synchronously so the background responds to popup messages
+// even if it was woken by a message rather than onInstalled/onStartup
+browser.runtime.onMessage.addListener((message) => {
+  return getBackgroundService(moduleName).then((svc) => svc.onMessage(message));
 });

@@ -119,7 +119,7 @@ export class AndroidAppBookmarkComponent extends AppBookmarkComponent implements
     });
   }
 
-  getMetadataForCurrentPage(): ng.IPromise<Boolean | BookmarkMetadata> {
+  getMetadataForCurrentPage(): ng.IPromise<boolean | BookmarkMetadata> {
     if (angular.isUndefined(this.platformSvc.sharedBookmark)) {
       return this.$q.resolve(undefined);
     }
