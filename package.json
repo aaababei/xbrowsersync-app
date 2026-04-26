@@ -13,8 +13,8 @@
   },
   "scripts": {
     "test": "jest --coverage --passWithNoTests",
-    "lint": "echo Checking for lint errors... && eslint ./src --ext .ts && stylelint \"./src/**/*.scss\"",
-    "lint:fix": "echo Checking and fixing lint errors... && eslint ./src --fix --ext .ts && stylelint \"./src/**/*.scss\" --fix",
+    "lint": "echo Checking for lint errors... && eslint ./src && stylelint \"./src/**/*.scss\"",
+    "lint:fix": "echo Checking and fixing lint errors... && eslint ./src --fix && stylelint \"./src/**/*.scss\" --fix",
     "webpack:chromium": "webpack --config ./webpack/chromium.config.js",
     "build:chromium": "npm run --silent lint:fix && echo Building platform CHROMIUM to ./build/chromium... && rimraf ./build/chromium && npm run --silent webpack:chromium",
     "build:chromium:dev": "npm run --silent build:chromium -- -- --mode=development",
@@ -61,7 +61,6 @@
     "lzutf8": "^0.6.0",
     "marked": "^14.0.0",
     "ng-infinite-scroll": "^1.3.0",
-    "popper.js": "^1.16.0",
     "pulltorefreshjs": "^0.1.22",
     "qrcode-svg": "^1.1.0",
     "stacktrace-js": "^2.0.2",
@@ -76,24 +75,24 @@
     "@types/base64-js": "^1.3.0",
     "@types/cordova": "0.0.34",
     "@types/dompurify": "^3.0.0",
-    "@types/jest": "^29.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.3.1",
-    "@typescript-eslint/parser": "^5.3.1",
+    "@types/jest": "^29.5.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "typescript-eslint": "^8.0.0",
     "angular-ts-decorators": "^3.7.8",
     "autobind-decorator": "^2.4.0",
     "copy-webpack-plugin": "^14.0.0",
     "css-loader": "^7.0.0",
-    "eslint": "^8.2.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-airbnb-typescript": "^16.1.0",
+    "eslint": "^9.0.0",
     "eslint-config-prettier": "^10.0.0",
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-prettier": "^5.0.0",
-    "eslint-plugin-simple-import-sort": "^7.0.0",
-    "eslint-plugin-unused-imports": "^2.0.0",
+    "eslint-plugin-simple-import-sort": "^12.0.0",
+    "eslint-plugin-unused-imports": "^4.0.0",
+    "fast-check": "^3.22.0",
     "html-loader": "^5.0.0",
-    "jest": "^29.0.0",
-    "jest-environment-jsdom": "^29.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "js-beautify": "^1.14.0",
     "mini-css-extract-plugin": "^2.4.4",
     "postcss": "^8.3.11",
@@ -106,94 +105,15 @@
     "stylelint": "^16.0.0",
     "stylelint-config-standard-scss": "^13.0.0",
     "stylelint-prettier": "^5.0.0",
-    "svg-inline-loader": "^0.8.2",
     "terser-webpack-plugin": "^5.3.1",
-    "ts-jest": "^29.0.0",
+    "ts-jest": "^29.2.0",
     "ts-loader": "^9.2.6",
-    "typescript": "~5.0.0",
+    "typescript": "~5.8.0",
     "webpack": "^5.64.0",
     "webpack-bundle-analyzer": "^4.5.0",
     "webpack-cli": "^5.0.0",
     "xml2js": "^0.6.0",
     "zip-dir": "^2.0.0"
-  },
-  "eslintConfig": {
-    "env": {
-      "browser": true,
-      "jest": true
-    },
-    "extends": [
-      "airbnb-base",
-      "airbnb-typescript/base",
-      "plugin:prettier/recommended"
-    ],
-    "globals": {
-      "Atomics": "readonly",
-      "ng": "readonly",
-      "SharedArrayBuffer": "readonly"
-    },
-    "ignorePatterns": [
-      "**/build/*",
-      "**/dist/*",
-      "**/node_modules/*"
-    ],
-    "parserOptions": {
-      "ecmaVersion": 2020,
-      "project": "./tsconfig.eslint.json",
-      "sourceType": "module"
-    },
-    "plugins": [
-      "simple-import-sort",
-      "unused-imports"
-    ],
-    "root": true,
-    "rules": {
-      "@typescript-eslint/comma-dangle": "off",
-      "@typescript-eslint/indent": "off",
-      "@typescript-eslint/lines-between-class-members": "off",
-      "@typescript-eslint/no-unused-vars": "off",
-      "@typescript-eslint/semi": "warn",
-      "class-methods-use-this": "off",
-      "consistent-return": "off",
-      "default-param-last": "off",
-      "func-style": "warn",
-      "global-require": "off",
-      "import/no-dynamic-require": "off",
-      "import/no-extraneous-dependencies": [
-        "error",
-        {
-          "devDependencies": true
-        }
-      ],
-      "import/order": "off",
-      "import/prefer-default-export": "off",
-      "no-bitwise": "off",
-      "no-empty": "off",
-      "no-nested-ternary": "off",
-      "no-param-reassign": "off",
-      "no-undef": "error",
-      "no-underscore-dangle": "off",
-      "no-unreachable": "warn",
-      "prefer-destructuring": "off",
-      "prettier/prettier": "warn",
-      "simple-import-sort/imports": [
-        "warn",
-        {
-          "groups": [
-            [
-              "^\\u0000",
-              "^@?\\w",
-              "^[^.]",
-              "^\\."
-            ]
-          ]
-        }
-      ],
-      "simple-import-sort/exports": "warn",
-      "sort-imports": "off",
-      "spaced-comment": "off",
-      "unused-imports/no-unused-imports-ts": "warn"
-    }
   },
   "stylelint": {
     "extends": [

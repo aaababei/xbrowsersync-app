@@ -1,29 +1,27 @@
 // @ts-check
-const tseslint = require('typescript-eslint');
+const tsPlugin = require('@typescript-eslint/eslint-plugin');
+const tsParser = require('@typescript-eslint/parser');
 const prettierRecommended = require('eslint-plugin-prettier/recommended');
 const simpleImportSort = require('eslint-plugin-simple-import-sort');
 const unusedImports = require('eslint-plugin-unused-imports');
-const importPlugin = require('eslint-plugin-import');
 
-module.exports = tseslint.config(
+module.exports = [
   {
     ignores: ['**/build/**', '**/dist/**', '**/node_modules/**']
   },
   {
     files: ['**/*.ts'],
-    extends: [
-      ...tseslint.configs.recommended,
-    ],
     plugins: {
+      '@typescript-eslint': tsPlugin,
       'simple-import-sort': simpleImportSort,
-      'unused-imports': unusedImports,
-      'import': importPlugin,
+      'unused-imports': unusedImports
     },
     languageOptions: {
+      parser: tsParser,
       parserOptions: {
         project: './tsconfig.eslint.json',
         sourceType: 'module',
-        ecmaVersion: 2020,
+        ecmaVersion: 2020
       },
       globals: {
         Atomics: 'readonly',
@@ -41,13 +39,15 @@ module.exports = tseslint.config(
         require: 'readonly',
         module: 'readonly',
         __dirname: 'readonly',
-        process: 'readonly',
-      },
+        process: 'readonly'
+      }
     },
     rules: {
+      ...tsPlugin.configs['recommended'].rules,
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-require-imports': 'off',
+      '@typescript-eslint/no-unsafe-function-type': 'off',
       'class-methods-use-this': 'off',
       'consistent-return': 'off',
       'default-param-last': 'off',
@@ -62,19 +62,15 @@ module.exports = tseslint.config(
       'simple-import-sort/imports': [
         'warn',
         {
-          groups: [
-            ['^\\u0000', '^@?\\w', '^[^.]', '^\\.']
+          groups: [['^\\u0000', '^@?\\w', '^[^.]', '^\\.']
           ]
         }
       ],
       'simple-import-sort/exports': 'warn',
       'sort-imports': 'off',
       'spaced-comment': 'off',
-      'unused-imports/no-unused-imports': 'warn',
-      'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
-      'import/order': 'off',
-      'import/prefer-default-export': 'off',
+      'unused-imports/no-unused-imports': 'warn'
     }
   },
   prettierRecommended
-);
+];
