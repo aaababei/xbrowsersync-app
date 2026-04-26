@@ -96,6 +96,27 @@ if (typeof document === 'undefined') {
       }
     };
   }
+
+  // AngularJS's $browser service registers 'hashchange' and 'popstate' listeners
+  // on window during initialisation (angular.js $BrowserProvider $get).
+  // Chrome MV3 service workers reject addEventListener calls for these events
+  // with: "Event handler of 'hashchange' event must be added on the initial
+  // evaluation of worker script."
+  // Since the background has no URL/navigation concept, silently swallow these
+  // two event types while delegating everything else to the real handler.
+  const _origAddEventListener = (globalThis as any).addEventListener?.bind(globalThis);
+  if (typeof _origAddEventListener === 'function') {
+    (globalThis as any).addEventListener = function (
+      type: string,
+      listener: EventListenerOrEventListenerObject,
+      options?: boolean | AddEventListenerOptions
+    ) {
+      if (type === 'hashchange' || type === 'popstate') {
+        return; // no-op: not meaningful in a service worker
+      }
+      return _origAddEventListener(type, listener, options);
+    };
+  }
 } else if (document.documentElement) {
   document.documentElement.setAttribute('ng-csp', '');
 }

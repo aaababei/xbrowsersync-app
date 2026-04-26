@@ -5,6 +5,9 @@
 //
 // csp-init.ts runs side effects at module load time:
 //   - If `document` is undefined → installs a stub on globalThis.document
+//   - Installs a Node stub on globalThis.Node if undefined
+//   - Patches globalThis.addEventListener to swallow 'hashchange' and 'popstate'
+//     events (Chrome MV3 service workers reject these at registration time)
 //   - Else if document.documentElement exists → sets the ng-csp attribute on the real DOM
 //
 // These tests exercise the `document === undefined` branch (service worker context).
@@ -62,5 +65,55 @@ describe('csp-init.ts — document stub (service worker branch)', () => {
     const el = doc.querySelector('[ng-csp]');
     const attr = el.getAttribute('ng-csp');
     expect(attr).not.toBeNull();
+  });
+});
+
+describe('csp-init.ts — addEventListener patch (service worker branch)', () => {
+  let originalDocument: Document | undefined;
+  let originalAddEventListener: typeof globalThis.addEventListener;
+
+  beforeEach(() => {
+    originalDocument = (global as any).document;
+    originalAddEventListener = (globalThis as any).addEventListener;
+    delete (global as any).document;
+    delete (globalThis as any).document;
+    jest.resetModules();
+  });
+
+  afterEach(() => {
+    (global as any).document = originalDocument;
+    (globalThis as any).document = originalDocument;
+    (globalThis as any).addEventListener = originalAddEventListener;
+  });
+
+  // 6.1 — 'hashchange' events are silently swallowed
+  test('addEventListener("hashchange", ...) is a no-op', () => {
+    const realHandler = jest.fn();
+    (globalThis as any).addEventListener = jest.fn(realHandler);
+    require('./csp-init');
+    const patched = (globalThis as any).addEventListener;
+    patched('hashchange', () => {});
+    expect(realHandler).not.toHaveBeenCalled();
+  });
+
+  // 6.2 — 'popstate' events are silently swallowed
+  test('addEventListener("popstate", ...) is a no-op', () => {
+    const realHandler = jest.fn();
+    (globalThis as any).addEventListener = jest.fn(realHandler);
+    require('./csp-init');
+    const patched = (globalThis as any).addEventListener;
+    patched('popstate', () => {});
+    expect(realHandler).not.toHaveBeenCalled();
+  });
+
+  // 6.3 — other event types are forwarded to the original handler
+  test('addEventListener("message", ...) delegates to the original handler', () => {
+    const realHandler = jest.fn();
+    (globalThis as any).addEventListener = realHandler;
+    require('./csp-init');
+    const patched = (globalThis as any).addEventListener;
+    const listener = () => {};
+    patched('message', listener);
+    expect(realHandler).toHaveBeenCalledWith('message', listener, undefined);
   });
 });

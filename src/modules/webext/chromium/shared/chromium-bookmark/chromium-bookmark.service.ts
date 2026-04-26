@@ -427,6 +427,23 @@ export class ChromiumBookmarkService extends WebExtBookmarkService {
     return nativeBookmarks;
   }
 
+  /**
+   * Retrieves native browser bookmark container IDs mapped to their BookmarkContainer types.
+   *
+   * Attempts to locate containers by their hardcoded node IDs first (`otherBookmarksNodeId`,
+   * `toolbarBookmarksNodeId`). If not found — which can happen in browsers that assign different
+   * IDs — falls back to matching by well-known node titles ("Other Bookmarks" / "Other bookmarks"
+   * and "Bookmarks bar" / "Bookmarks Bar").
+   *
+   * Brave wraps the bookmark tree in an extra root node, so the search root is adjusted
+   * automatically: if the expected container IDs are not found at `root.children`, the method
+   * searches one level deeper via `root.children[0].children`.
+   *
+   * Cached node IDs are updated when the fallback path is used so subsequent lookups are fast.
+   *
+   * @returns A promise resolving to a Map of BookmarkContainer → native node ID strings.
+   * @throws {ContainerNotFoundError} When neither the ID nor the title lookup finds a required container.
+   */
   getNativeContainerIds(): ng.IPromise<Map<BookmarkContainer, string>> {
     return this.utilitySvc
       .isSyncEnabled()
@@ -444,12 +461,30 @@ export class ChromiumBookmarkService extends WebExtBookmarkService {
         return browser.bookmarks.getTree().then((tree) => {
           // Get the root child nodes
           const [root] = tree;
-          const otherBookmarksNode = root.children.find((x) => {
-            return x.id === this.otherBookmarksNodeId;
-          });
-          const toolbarBookmarksNode = root.children.find((x) => {
-            return x.id === this.toolbarBookmarksNodeId;
-          });
+
+          // Brave wraps the bookmark tree in an extra root node, so the actual
+          // container folders may be one level deeper than in Chrome.
+          // Check if expected nodes exist at root.children; if not, try root.children[0].children.
+          const hasExpectedChildren = root.children?.some(
+            (x) => x.id === this.otherBookmarksNodeId || x.id === this.toolbarBookmarksNodeId
+          );
+          const searchRoot = !hasExpectedChildren && root.children?.[0]?.children ? root.children[0] : root;
+
+          // Try to find by hardcoded IDs first, fall back to searching by known node titles
+          let otherBookmarksNode = searchRoot.children.find((x) => x.id === this.otherBookmarksNodeId);
+          let toolbarBookmarksNode = searchRoot.children.find((x) => x.id === this.toolbarBookmarksNodeId);
+
+          // Fallback: search by title for browsers that may use different IDs
+          if (!otherBookmarksNode) {
+            otherBookmarksNode = searchRoot.children.find(
+              (x) => x.title === 'Other Bookmarks' || x.title === 'Other bookmarks'
+            );
+          }
+          if (!toolbarBookmarksNode) {
+            toolbarBookmarksNode = searchRoot.children.find(
+              (x) => x.title === 'Bookmarks bar' || x.title === 'Bookmarks Bar'
+            );
+          }
 
           // Throw an error if a native container node is not found
           if (!otherBookmarksNode || !toolbarBookmarksNode) {
@@ -470,6 +505,9 @@ export class ChromiumBookmarkService extends WebExtBookmarkService {
           // Add container ids to result
           containerIds.set(BookmarkContainer.Other, otherBookmarksNode.id);
           containerIds.set(BookmarkContainer.Toolbar, toolbarBookmarksNode.id);
+          // Update cached node IDs in case they differ from defaults
+          this.otherBookmarksNodeId = otherBookmarksNode.id;
+          this.toolbarBookmarksNodeId = toolbarBookmarksNode.id;
           if (!angular.isUndefined(menuBookmarksNode)) {
             containerIds.set(BookmarkContainer.Menu, menuBookmarksNode.id);
           }
