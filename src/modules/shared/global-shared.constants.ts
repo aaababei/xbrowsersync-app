@@ -26,9 +26,8 @@ export default {
   QrCode: {
     Delimiter: '|$$|'
   },
-  ReleaseNotesUrlStem: 'https://github.com/xbrowsersync/app/releases/tag/v',
-  ReleaseLatestUrl: 'https://api.github.com/repos/xbrowsersync/app/releases/latest',
-  TelemetryUrl: 'https://telemetry.xbrowsersync.org/submit',
+  ReleaseNotesUrlStem: 'https://github.com/aaababei/xbrowsersync-app/releases/tag/v',
+  ReleaseLatestUrl: 'https://api.github.com/repos/aaababei/xbrowsersync-app/releases/latest',
   Title: 'xBrowserSync',
   URL: {
     DefaultServiceUrl: 'https://api.xbrowsersync.org',

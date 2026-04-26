@@ -22,7 +22,6 @@ import { StoreKey } from '../../shared/store/store.enum';
 import { StoreService } from '../../shared/store/store.service';
 import { Sync } from '../../shared/sync/sync.interface';
 import { SyncService } from '../../shared/sync/sync.service';
-import { TelemetryService } from '../../shared/telemetry/telemetry.service';
 import { UpgradeService } from '../../shared/upgrade/upgrade.service';
 import { UtilityService } from '../../shared/utility/utility.service';
 import { ChromiumBookmarkService } from '../chromium/shared/chromium-bookmark/chromium-bookmark.service';
@@ -53,7 +52,6 @@ export class WebExtBackgroundService {
   settingsSvc: SettingsService;
   storeSvc: StoreService;
   syncSvc: SyncService;
-  telemetrySvc: TelemetryService;
   upgradeSvc: UpgradeService;
   utilitySvc: UtilityService;
 
@@ -74,7 +72,6 @@ export class WebExtBackgroundService {
     'SettingsService',
     'StoreService',
     'SyncService',
-    'TelemetryService',
     'UpgradeService',
     'UtilityService'
   ];
@@ -93,7 +90,6 @@ export class WebExtBackgroundService {
     SettingsSvc: SettingsService,
     StoreSvc: StoreService,
     SyncSvc: SyncService,
-    TelemetrySvc: TelemetryService,
     UpgradeSvc: UpgradeService,
     UtilitySvc: UtilityService
   ) {
@@ -111,7 +107,6 @@ export class WebExtBackgroundService {
     this.settingsSvc = SettingsSvc;
     this.storeSvc = StoreSvc;
     this.syncSvc = SyncSvc;
-    this.telemetrySvc = TelemetrySvc;
     this.upgradeSvc = UpgradeSvc;
     this.utilitySvc = UtilitySvc;
 
@@ -239,35 +234,24 @@ export class WebExtBackgroundService {
       .then((appVersion) => this.upgradeSvc.checkIfUpgradeRequired(appVersion))
       .then((upgradeRequired) => upgradeRequired && this.upgradeExtension())
       .then(() =>
-        this.$q
-          .all([
-            this.settingsSvc.checkForAppUpdates(),
-            this.settingsSvc.telemetryEnabled(),
-            this.utilitySvc.isSyncEnabled()
-          ])
-          .then((data) => {
-            // Update browser action icon
-            const [checkForAppUpdates, telemetryEnabled, syncEnabled] = data;
-            this.platformSvc.refreshNativeInterface(syncEnabled);
+        this.$q.all([this.settingsSvc.checkForAppUpdates(), this.utilitySvc.isSyncEnabled()]).then((data) => {
+          // Update browser action icon
+          const [checkForAppUpdates, syncEnabled] = data;
+          this.platformSvc.refreshNativeInterface(syncEnabled);
 
-            // Check for new app version
-            if (checkForAppUpdates) {
-              this.$timeout(() => this.checkForNewVersion(), 5e3);
-            }
+          // Check for new app version
+          if (checkForAppUpdates) {
+            this.$timeout(() => this.checkForNewVersion(), 5e3);
+          }
 
-            // Enable sync and check for updates
-            if (!syncEnabled) {
-              return;
-            }
-            return this.syncSvc.enableSync().then(() => {
-              this.$timeout(() => this.checkForSyncUpdatesOnStartup(), 3e3);
-
-              // Submit telemetry if enabled
-              if (telemetryEnabled) {
-                this.$timeout(() => this.telemetrySvc.submitTelemetry(), 4e3);
-              }
-            });
-          })
+          // Enable sync and check for updates
+          if (!syncEnabled) {
+            return;
+          }
+          return this.syncSvc.enableSync().then(() => {
+            this.$timeout(() => this.checkForSyncUpdatesOnStartup(), 3e3);
+          });
+        })
       );
   }
 

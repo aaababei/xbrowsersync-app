@@ -23,8 +23,7 @@ describe('SettingsService', () => {
       [StoreKey.CheckForAppUpdates]: true,
       [StoreKey.DarkModeEnabled]: false,
       [StoreKey.DefaultToFolderView]: false,
-      [StoreKey.SyncBookmarksToolbar]: false,
-      [StoreKey.TelemetryEnabled]: true
+      [StoreKey.SyncBookmarksToolbar]: false
     };
     mockStoreSvc.get.mockResolvedValue(testSettings);
 
@@ -141,24 +140,6 @@ describe('SettingsService', () => {
 
     expect(mockStoreSvc.set).toBeCalledWith(StoreKey.SyncBookmarksToolbar, true);
     expect(result).toBe(true);
-  });
-
-  test('telemetryEnabled: Gets value from store when no argument provided', async () => {
-    mockStoreSvc.get.mockResolvedValue(true);
-
-    const result = await settingsSvc.telemetryEnabled();
-
-    expect(mockStoreSvc.get).toBeCalledWith(StoreKey.TelemetryEnabled);
-    expect(result).toBe(true);
-  });
-
-  test('telemetryEnabled: Sets value in store when argument provided', async () => {
-    mockStoreSvc.set.mockResolvedValue();
-
-    const result = await settingsSvc.telemetryEnabled(false);
-
-    expect(mockStoreSvc.set).toBeCalledWith(StoreKey.TelemetryEnabled, false);
-    expect(result).toBe(false);
   });
 
   test('darkModeEnabled: Logs message when setting value', async () => {

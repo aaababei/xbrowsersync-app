@@ -16,7 +16,6 @@ export interface StoreContent {
   displayHelp: boolean;
   displayOtherSyncsWarning: boolean;
   displayPermissions: boolean;
-  displayTelemetryCheck: boolean;
   displayUpdated: boolean;
   defaultToFolderView: boolean;
   installBackup: string;
@@ -25,7 +24,6 @@ export interface StoreContent {
   syncBookmarksToolbar: boolean;
   syncEnabled: boolean;
   syncInfo: ApiSyncInfo;
-  telemetryEnabled: boolean;
   traceLog: string[];
 }
 

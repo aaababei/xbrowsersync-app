@@ -20,15 +20,13 @@ export class AndroidStoreService extends StoreService {
     StoreKey.DisplayHelp,
     StoreKey.DisplayOtherSyncsWarning,
     StoreKey.DisplayPermissions,
-    StoreKey.DisplayTelemetryCheck,
     StoreKey.DisplayUpdated,
     StoreKey.InstallationId,
     StoreKey.LastUpdated,
     StoreKey.LastUpgradeVersion,
     StoreKey.SyncBookmarksToolbar,
     StoreKey.SyncEnabled,
-    StoreKey.SyncInfo,
-    StoreKey.TelemetryEnabled
+    StoreKey.SyncInfo
   ];
   sqlKeys: string[] = [StoreKey.Bookmarks, StoreKey.RemovedSync, StoreKey.TraceLog];
 

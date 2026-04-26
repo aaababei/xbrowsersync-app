@@ -5,5 +5,4 @@ export interface AllSettings {
   darkModeEnabled: boolean;
   defaultToFolderView: boolean;
   syncBookmarksToolbar: boolean;
-  telemetryEnabled: boolean;
 }

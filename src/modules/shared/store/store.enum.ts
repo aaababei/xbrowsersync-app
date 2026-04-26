@@ -9,7 +9,6 @@ enum StoreKey {
   DisplayHelp = 'displayHelp',
   DisplayOtherSyncsWarning = 'displayOtherSyncsWarning',
   DisplayPermissions = 'displayPermissions',
-  DisplayTelemetryCheck = 'displayTelemetryCheck',
   DisplayUpdated = 'displayUpdated',
   DefaultToFolderView = 'defaultToFolderView',
   InstallBackup = 'installBackup',
@@ -20,7 +19,6 @@ enum StoreKey {
   SyncBookmarksToolbar = 'syncBookmarksToolbar',
   SyncEnabled = 'syncEnabled',
   SyncInfo = 'syncInfo',
-  TelemetryEnabled = 'telemetryEnabled',
   TraceLog = 'traceLog'
 }
 

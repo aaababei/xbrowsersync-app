@@ -15,7 +15,6 @@ import { SettingsService } from '../../shared/settings/settings.service';
 import { StoreKey } from '../../shared/store/store.enum';
 import { StoreService } from '../../shared/store/store.service';
 import { SyncService } from '../../shared/sync/sync.service';
-import { TelemetryService } from '../../shared/telemetry/telemetry.service';
 import { UpgradeService } from '../../shared/upgrade/upgrade.service';
 import { UtilityService } from '../../shared/utility/utility.service';
 import { WorkingContext } from '../../shared/working/working.enum';
@@ -35,7 +34,6 @@ export class AndroidAppComponent extends AppMainComponent implements OnInit {
   appHelperSvc: AndroidAppHelperService;
   platformSvc: AndroidPlatformService;
   syncSvc: SyncService;
-  telemetrySvc: TelemetryService;
   upgradeSvc: UpgradeService;
 
   darkThemeEnabled = false;
@@ -55,7 +53,6 @@ export class AndroidAppComponent extends AppMainComponent implements OnInit {
     'SettingsService',
     'StoreService',
     'SyncService',
-    'TelemetryService',
     'UpgradeService',
     'UtilityService',
     'WorkingService'
@@ -75,7 +72,6 @@ export class AndroidAppComponent extends AppMainComponent implements OnInit {
     SettingsSvc: SettingsService,
     StoreSvc: StoreService,
     SyncSvc: SyncService,
-    TelemetrySvc: TelemetryService,
     UpgradeSvc: UpgradeService,
     UtilitySvc: UtilityService,
     WorkingSvc: WorkingService
@@ -99,7 +95,6 @@ export class AndroidAppComponent extends AppMainComponent implements OnInit {
 
     this.$interval = $interval;
     this.syncSvc = SyncSvc;
-    this.telemetrySvc = TelemetrySvc;
     this.upgradeSvc = UpgradeSvc;
   }
 
@@ -329,40 +324,29 @@ export class AndroidAppComponent extends AppMainComponent implements OnInit {
   handleStartup(): ng.IPromise<void> {
     this.logSvc.logInfo('Starting up');
 
-    return this.$q
-      .all([
-        this.settingsSvc.checkForAppUpdates(),
-        this.settingsSvc.telemetryEnabled(),
-        this.utilitySvc.isSyncEnabled()
-      ])
-      .then((data) => {
-        const [checkForAppUpdates, telemetryEnabled, syncEnabled] = data;
+    return this.$q.all([this.settingsSvc.checkForAppUpdates(), this.utilitySvc.isSyncEnabled()]).then((data) => {
+      const [checkForAppUpdates, syncEnabled] = data;
 
-        // Check for new app version
-        if (checkForAppUpdates) {
-          this.checkForNewVersion();
+      // Check for new app version
+      if (checkForAppUpdates) {
+        this.checkForNewVersion();
+      }
+
+      // Exit if sync not enabled
+      if (!syncEnabled) {
+        return;
+      }
+
+      // Check if a bookmark was shared
+      return this.getSharedBookmark().then((sharedBookmark) => {
+        if (!angular.isUndefined(sharedBookmark)) {
+          return this.handleBookmarkShared(sharedBookmark);
         }
 
-        // Exit if sync not enabled
-        if (!syncEnabled) {
-          return;
-        }
-
-        // Submit telemetry if enabled
-        if (telemetryEnabled) {
-          this.$timeout(() => this.telemetrySvc.submitTelemetry(), 5e3);
-        }
-
-        // Check if a bookmark was shared
-        return this.getSharedBookmark().then((sharedBookmark) => {
-          if (!angular.isUndefined(sharedBookmark)) {
-            return this.handleBookmarkShared(sharedBookmark);
-          }
-
-          // Run sync
-          this.executeSync(WorkingContext.DelayedSyncing);
-        });
+        // Run sync
+        this.executeSync(WorkingContext.DelayedSyncing);
       });
+    });
   }
 
   @boundMethod

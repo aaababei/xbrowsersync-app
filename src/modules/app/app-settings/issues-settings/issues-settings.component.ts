@@ -4,7 +4,6 @@ import { boundMethod } from 'autobind-decorator';
 import { PlatformService } from '../../../shared/global-shared.interface';
 import { LogLevel } from '../../../shared/log/log.enum';
 import { LogService } from '../../../shared/log/log.service';
-import { TelemetryService } from '../../../shared/telemetry/telemetry.service';
 import { UtilityService } from '../../../shared/utility/utility.service';
 import { RoutePath } from '../../app.enum';
 import { AppHelperService } from '../../shared/app-helper/app-helper.service';
@@ -21,25 +20,22 @@ export class IssuesSettingsComponent implements OnInit {
   appHelperSvc: AppHelperService;
   logSvc: LogService;
   platformSvc: PlatformService;
-  telemetrySvc: TelemetryService;
   utilitySvc: UtilityService;
 
   downloadLogCompletedMessage: string;
   logSize: number;
   savingLog = false;
 
-  static $inject = ['AppHelperService', 'LogService', 'PlatformService', 'TelemetryService', 'UtilityService'];
+  static $inject = ['AppHelperService', 'LogService', 'PlatformService', 'UtilityService'];
   constructor(
     AppHelperSvc: AppHelperService,
     LogSvc: LogService,
     PlatformSvc: PlatformService,
-    TelemetrySvc: TelemetryService,
     UtilitySvc: UtilityService
   ) {
     this.appHelperSvc = AppHelperSvc;
     this.logSvc = LogSvc;
     this.platformSvc = PlatformSvc;
-    this.telemetrySvc = TelemetrySvc;
     this.utilitySvc = UtilitySvc;
   }
 
@@ -91,33 +87,28 @@ export class IssuesSettingsComponent implements OnInit {
   }
 
   saveLogFile(): ng.IPromise<string | void> {
-    // Add telemetry to log before saving
-    return this.telemetrySvc
-      .getTelemetryPayload()
-      .then((telemetry) => this.logSvc.logInfo(telemetry))
-      .then(() => this.logSvc.getLogEntries())
-      .then((traceLogItems) => {
-        // Convert trace log items into string array
-        const log = traceLogItems.map((traceLogItem) => {
-          let messageLogText = `${new Date(traceLogItem.timestamp).toISOString().replace(/[A-Z]/g, ' ').trim()}\t`;
-          switch (traceLogItem.level) {
-            case LogLevel.Error:
-              messageLogText += '[error]\t';
-              break;
-            case LogLevel.Warn:
-              messageLogText += '[warn]\t';
-              break;
-            case LogLevel.Trace:
-            default:
-              messageLogText += '[trace]\t';
-          }
-          messageLogText += traceLogItem.message;
-          return messageLogText;
-        });
-
-        // Trigger download
-        return this.platformSvc.downloadFile(this.getLogFilename(), log.join('\r\n'));
+    return this.logSvc.getLogEntries().then((traceLogItems) => {
+      // Convert trace log items into string array
+      const log = traceLogItems.map((traceLogItem) => {
+        let messageLogText = `${new Date(traceLogItem.timestamp).toISOString().replace(/[A-Z]/g, ' ').trim()}\t`;
+        switch (traceLogItem.level) {
+          case LogLevel.Error:
+            messageLogText += '[error]\t';
+            break;
+          case LogLevel.Warn:
+            messageLogText += '[warn]\t';
+            break;
+          case LogLevel.Trace:
+          default:
+            messageLogText += '[trace]\t';
+        }
+        messageLogText += traceLogItem.message;
+        return messageLogText;
       });
+
+      // Trigger download
+      return this.platformSvc.downloadFile(this.getLogFilename(), log.join('\r\n'));
+    });
   }
 
   @boundMethod

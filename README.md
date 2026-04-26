@@ -1,11 +1,14 @@
+> [!WARNING]
+> This is an unofficial personal fork, not intended for general use or distribution. It contains experimental modifications to maintain compatibility with recent browser versions and may be unstable. Use at your own risk.
+
 # xBrowserSync
 
 ## Desktop browser web extensions and Android app
 
-[![Latest release](https://img.shields.io/github/release/xbrowsersync/app.svg)](https://github.com/xbrowsersync/app/blob/master/LICENSE.md) [![GitHub license](https://img.shields.io/github/license/xbrowsersync/app.svg)](https://github.com/xbrowsersync/app/releases/latest) [![build](https://github.com/xbrowsersync/app/actions/workflows/build.yml/badge.svg)](https://github.com/xbrowsersync/app/actions/workflows/build.yml) [![Coverage Status](https://coveralls.io/repos/github/xbrowsersync/app/badge.svg?branch=master)](https://coveralls.io/github/xbrowsersync/app?branch=master) [![Crowdin](https://badges.crowdin.net/xbrowsersync-app/localized.svg)](https://crowdin.com/project/xbrowsersync-app) ![Dependencies](https://img.shields.io/depfu/xbrowsersync/app) [![Liberapay patrons](http://img.shields.io/liberapay/patrons/xbrowsersync.svg?logo=liberapay)](https://liberapay.com/xbrowsersync/donate)
+[![Latest release](https://img.shields.io/github/release/aaababei/xbrowsersync-app.svg)](https://github.com/aaababei/xbrowsersync-app/blob/master/LICENSE.md) [![GitHub license](https://img.shields.io/github/license/aaababei/xbrowsersync-app.svg)](https://github.com/aaababei/xbrowsersync-app/releases/latest) [![build](https://github.com/aaababei/xbrowsersync-app/actions/workflows/build.yml/badge.svg)](https://github.com/aaababei/xbrowsersync-app/actions/workflows/build.yml) [![Coverage Status](https://coveralls.io/repos/github/aaababei/xbrowsersync-app/badge.svg?branch=master)](https://coveralls.io/github/aaababei/xbrowsersync-app?branch=master) [![Crowdin](https://badges.crowdin.net/xbrowsersync-app/localized.svg)](https://crowdin.com/project/xbrowsersync-app) ![Dependencies](https://img.shields.io/depfu/aaababei/xbrowsersync-app) [![Liberapay patrons](http://img.shields.io/liberapay/patrons/xbrowsersync.svg?logo=liberapay)](https://liberapay.com/xbrowsersync/donate)
 
-[![GitHub forks](https://img.shields.io/github/forks/xbrowsersync/app.svg?style=social&label=Fork)](https://github.com/xbrowsersync/app/fork)
-[![GitHub stars](https://img.shields.io/github/stars/xbrowsersync/app.svg?style=social&label=Star)](https://github.com/xbrowsersync/app)
+[![GitHub forks](https://img.shields.io/github/forks/aaababei/xbrowsersync-app.svg?style=social&label=Fork)](https://github.com/aaababei/xbrowsersync-app/fork)
+[![GitHub stars](https://img.shields.io/github/stars/aaababei/xbrowsersync-app.svg?style=social&label=Star)](https://github.com/aaababei/xbrowsersync-app)
 
 xBrowserSync is a free tool for syncing browser data between different browsers and devices, built for privacy and anonymity. For full details, see [www.xbrowsersync.org](https://www.xbrowsersync.org/).
 
@@ -78,8 +81,8 @@ Replace [platform] with the name of the platform to build. The package will be o
 
 ## Issues
 
-If you’ve found a bug or wish to request a new feature, please submit it [here](https://github.com/xbrowsersync/app/issues/).
+If you’ve found a bug or wish to request a new feature, please submit it [here](https://github.com/aaababei/xbrowsersync-app/issues/).
 
 ## Translation
 
-If you would like to help with translating xBrowserSync into another language, please read the [Translations](https://github.com/xbrowsersync/app/wiki/Translations) wiki page to get started.
+If you would like to help with translating xBrowserSync into another language, please read the [Translations](https://github.com/aaababei/xbrowsersync-app/wiki/Translations) wiki page to get started.

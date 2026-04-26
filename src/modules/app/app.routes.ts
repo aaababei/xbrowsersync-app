@@ -70,11 +70,6 @@ export class AppRoutesModule {}
           controllerAs: 'vm',
           template: require('./app-sync-removed/app-sync-removed.controller.html')
         })
-        .when(`${RoutePath.TelemetryCheck}`, {
-          controller: 'AppController',
-          controllerAs: 'vm',
-          template: require('./app-telemetry/app-telemetry.controller.html')
-        })
         .when(`${RoutePath.Updated}`, {
           controller: 'AppController',
           controllerAs: 'vm',

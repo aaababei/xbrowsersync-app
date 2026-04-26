@@ -32,7 +32,6 @@ export class AppBackgroundComponent implements OnInit {
       this.utilitySvc.checkCurrentRoute(RoutePath.Permissions) ||
       this.utilitySvc.checkCurrentRoute(RoutePath.Support) ||
       this.utilitySvc.checkCurrentRoute(RoutePath.SyncRemoved) ||
-      this.utilitySvc.checkCurrentRoute(RoutePath.TelemetryCheck) ||
       this.utilitySvc.checkCurrentRoute(RoutePath.Updated)
     );
   }
